@@ -27,8 +27,9 @@ jobs:
 
       - name: Sync update locals(greasyfork).js
         run: |
-          # 获得最近以`main.user.js Update to version`开头的提交的引用
-          ref=$(git log --grep="^main.user.js Update to" -n 1 --pretty=format:"%H")
+          # 获得最近发布提交的引用
+          # 标题可能是 `main.user.js Update to …` 或 `main.user.js, main(nju.edu).user.js Update to …`
+          ref=$(git log --grep="^main.user.js.*Update to" -n 1 --pretty=format:"%H")
 
           # 获取该提交中`locals.js`的文件时间, 并设置环境变量
           locals_js_time=$(git log -1 --format=%at $ref -- locals.js)
@@ -61,6 +62,6 @@ jobs:
         with:
           token: ${{ steps.generate_token.outputs.token }}
           app-slug: ${{ steps.generate_token.outputs.app-slug }}
-          parent-sha: ${{ needs.update_main.outputs.commit-sha }}
+          parent-sha: ${{ github.sha }}
           files: "locals(greasyfork).js, main(greasyfork).user.js"
           headline: "main(greasyfork).user.js Sync Thesaurus to ${{ steps.greasyfork_version.outputs.version }}"
